@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Profile - Tomorrow School</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page">
+        <div class="login-container">
+            <div class="login-card">
+                <h1>Welcome to Tomorrow School</h1>
+                <h2>Sign In to View Your Profile</h2>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username or Email:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="login-btn">Sign In</button>
+                </form>
+                
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="page" style="display: none;">
+        <header class="profile-header">
+            <div class="header-content">
+                <h1>My Profile</h1>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <main class="profile-main">
+            <!-- User Info Section -->
+            <section class="profile-section">
+                <h2>Basic Information</h2>
+                <div class="user-info">
+                    <div class="info-item">
+                        <span class="label">ID:</span>
+                        <span id="userId" class="value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Login:</span>
+                        <span id="userLogin" class="value">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- XP Section -->
+            <section class="profile-section">
+                <h2>Experience Points</h2>
+                <div class="xp-info">
+                    <div class="xp-total">
+                        <span class="xp-label">Total XP:</span>
+                        <span id="totalXp" class="xp-value">0</span>
+                    </div>
+                    <div class="xp-breakdown">
+                        <div class="xp-item">
+                            <span class="xp-type">From Projects:</span>
+                            <span id="projectXp" class="xp-amount">0</span>
+                        </div>
+                        <div class="xp-item">
+                            <span class="xp-type">From Exercises:</span>
+                            <span id="exerciseXp" class="xp-amount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="profile-section">
+                <h2>Progress Overview</h2>
+                <div class="progress-info">
+                    <div class="progress-item">
+                        <span class="progress-label">Total Projects:</span>
+                        <span id="totalProjects" class="progress-value">0</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">Passed Projects:</span>
+                        <span id="passedProjects" class="progress-value">0</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">Success Rate:</span>
+                        <span id="successRate" class="progress-value">0%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Audit Ratio Section -->
+            <section class="profile-section">
+                <h2>Audit Statistics</h2>
+                <div class="audit-info">
+                    <div class="audit-item">
+                        <span class="audit-label">Total Audits:</span>
+                        <span id="totalAudits" class="audit-value">0</span>
+                    </div>
+                    <div class="audit-item">
+                        <span class="audit-label">Passed Audits:</span>
+                        <span id="passedAudits" class="audit-value">0</span>
+                    </div>
+                    <div class="audit-item">
+                        <span class="audit-label">Audit Success Rate:</span>
+                        <span id="auditSuccessRate" class="audit-value">0%</span>
+                    </div>
+                    <div class="audit-item">
+                        <span class="audit-label">Audit Fail Rate:</span>
+                        <span id="auditFailRate" class="audit-value">0%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Graphs Section -->
+            <section class="profile-section">
+                <h2>Statistics & Analytics</h2>
+                <div class="graphs-container">
+                    <div class="graph-card">
+                        <h3>XP Over Time</h3>
+                        <div id="xpOverTimeGraph" class="graph"></div>
+                    </div>
+                    <div class="graph-card">
+                        <h3>Project Success Rate</h3>
+                        <div id="successRateGraph" class="graph"></div>
+                    </div>
+                    <div class="graph-card">
+                        <h3>XP by Project Type</h3>
+                        <div id="xpByTypeGraph" class="graph"></div>
+                    </div>
+                    <div class="graph-card">
+                        <h3>Monthly Progress</h3>
+                        <div id="monthlyProgressGraph" class="graph"></div>
+                    </div>
+                    <div class="graph-card">
+                        <h3>Audit Success Rate</h3>
+                        <div id="auditRatioGraph" class="graph"></div>
+                    </div>
+                    <div class="graph-card">
+                        <h3>Failed Audits</h3>
+                        <div id="failedAuditsGraph" class="graph"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Tomorrow School Profile Dashboard</p>
+                <p>Built with GraphQL, JavaScript, and modern web technologies</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="js/graphql-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/graphs.js"></script>
+</body>
+</html>
