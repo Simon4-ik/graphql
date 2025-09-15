@@ -6,12 +6,12 @@ class GraphManager {
     createAllGraphs() {
         if (!window.profileManager) return;
 
+        this.createXpProgressionGraph();
         this.createXpOverTimeGraph();
         this.createSuccessRateGraph();
         this.createXpByTypeGraph();
         this.createMonthlyProgressGraph();
         this.createAuditRatioGraph();
-        this.createFailedAuditsGraph();
     }
 
     createXpOverTimeGraph() {
@@ -358,79 +358,6 @@ class GraphManager {
         });
     }
 
-    createFailedAuditsGraph() {
-        const container = document.getElementById('failedAuditsGraph');
-        if (!container) return;
-
-        const data = window.profileManager.getFailedAuditsData();
-        if (data.length === 0) {
-            container.innerHTML = '<p>No failed audit data available</p>';
-            return;
-        }
-
-        const width = 280;
-        const height = 200;
-        const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-        const chartWidth = width - margin.left - margin.right;
-        const chartHeight = height - margin.top - margin.bottom;
-
-        const svg = this.createSVG(container, width, height);
-        const g = svg.append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
-
-        const xScale = d3.scaleBand()
-            .domain(data.map(d => d.label))
-            .range([0, chartWidth])
-            .padding(0.1);
-
-        const yScale = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.value)])
-            .range([chartHeight, 0]);
-
-        // Create bars
-        g.selectAll('.bar')
-            .data(data)
-            .enter().append('rect')
-            .attr('class', 'bar')
-            .attr('x', d => xScale(d.label))
-            .attr('width', xScale.bandwidth())
-            .attr('y', d => yScale(d.value))
-            .attr('height', d => chartHeight - yScale(d.value))
-            .attr('fill', '#dc3545')
-            .attr('stroke', '#c82333')
-            .attr('stroke-width', 1)
-            .on('mouseover', function(event, d) {
-                d3.select(this).attr('opacity', 0.8);
-            })
-            .on('mouseout', function(event, d) {
-                d3.select(this).attr('opacity', 1);
-            });
-
-        // Add value labels on bars
-        g.selectAll('.bar-label')
-            .data(data)
-            .enter().append('text')
-            .attr('class', 'bar-label')
-            .attr('x', d => xScale(d.label) + xScale.bandwidth() / 2)
-            .attr('y', d => yScale(d.value) - 5)
-            .attr('text-anchor', 'middle')
-            .attr('class', 'graph-text')
-            .style('font-weight', 'bold')
-            .text(d => d.value);
-
-        // Add axes
-        g.append('g')
-            .attr('transform', `translate(0,${chartHeight})`)
-            .call(d3.axisBottom(xScale))
-            .selectAll('text')
-            .attr('class', 'graph-text')
-            .attr('transform', 'rotate(-45)');
-
-        g.append('g')
-            .call(d3.axisLeft(yScale))
-            .selectAll('text')
-            .attr('class', 'graph-text');
-    }
 
     createSVG(container, width, height) {
         container.innerHTML = '';
@@ -472,6 +399,94 @@ class GraphManager {
             .selectAll('text')
             .attr('class', 'graph-text');
     }
+
+
+    // Create XP Progression Comparison
+    createXpProgressionGraph() {
+        const container = document.getElementById('xpProgressionGraph');
+        if (!container) return;
+
+        const userData = window.profileManager.getXpOverTimeData();
+        if (userData.length === 0) {
+            container.innerHTML = '<p>No progression data available</p>';
+            return;
+        }
+
+        const width = 280;
+        const height = 200;
+        const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+        const svg = this.createSVG(container, width, height);
+
+        // Create scales
+        const xScale = this.createTimeScale(userData, width - margin.left - margin.right, margin.left);
+        const yScale = this.createLinearScale(userData.map(d => d.xp), height - margin.top - margin.bottom, margin.top);
+
+        // Create user line
+        const line = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.xp))
+            .curve(d3.curveMonotoneX);
+
+        svg.append('path')
+            .datum(userData)
+            .attr('class', 'graph-line')
+            .attr('d', line)
+            .attr('stroke', '#667eea')
+            .attr('stroke-width', 3)
+            .attr('fill', 'none');
+
+        // Create average line (mock data)
+        const avgData = userData.map(d => ({
+            date: d.date,
+            xp: d.xp * 0.3 // Mock average at 30% of user's XP
+        }));
+
+        svg.append('path')
+            .datum(avgData)
+            .attr('class', 'graph-line')
+            .attr('d', line)
+            .attr('stroke', '#ccc')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,5')
+            .attr('fill', 'none');
+
+        // Add axes
+        this.addXAxis(svg, xScale, height - margin.bottom, margin.left);
+        this.addYAxis(svg, yScale, margin.left, margin.top);
+
+        // Add legend
+        const legend = svg.append('g')
+            .attr('transform', `translate(${width - 120}, 20)`);
+
+        const legendItems = [
+            { color: '#667eea', text: 'You' },
+            { color: '#ccc', text: 'All students' }
+        ];
+
+        legendItems.forEach((item, i) => {
+            const legendItem = legend.append('g')
+                .attr('transform', `translate(0, ${i * 20})`);
+
+            legendItem.append('line')
+                .attr('x1', 0)
+                .attr('x2', 20)
+                .attr('y1', 0)
+                .attr('y2', 0)
+                .attr('stroke', item.color)
+                .attr('stroke-width', i === 0 ? 3 : 2)
+                .attr('stroke-dasharray', i === 1 ? '5,5' : 'none');
+
+            legendItem.append('text')
+                .attr('x', 25)
+                .attr('y', 5)
+                .attr('class', 'graph-text')
+                .text(item.text);
+        });
+    }
+
+
+
 }
 
 // Initialize graph manager

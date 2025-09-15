@@ -221,7 +221,7 @@ class GraphQLClient {
 
     // Simple query - get user information
     async getUserInfo() {
-        return await this.query('query { user { id login } }');
+        return await this.query('query { user { id login firstName lastName email } }');
     }
 
     // Simple query - get transactions
@@ -346,6 +346,74 @@ class GraphQLClient {
         `;
         return await this.query(query);
     }
+
+    // Get user rank and level information
+    async getUserRankAndLevel() {
+        const query = `
+            query {
+                user {
+                    id
+                    login
+                    firstName
+                    lastName
+                    email
+                }
+            }
+        `;
+        return await this.query(query);
+    }
+
+    // Get audit statistics
+    async getAuditStats() {
+        const query = `
+            query {
+                progress {
+                    id
+                    userId
+                    objectId
+                    grade
+                    createdAt
+                    updatedAt
+                }
+            }
+        `;
+        return await this.query(query);
+    }
+
+
+
+    // Get XP distribution data for comparison
+    async getXpDistribution() {
+        const query = `
+            query {
+                transaction {
+                    id
+                    type
+                    amount
+                    userId
+                    createdAt
+                }
+            }
+        `;
+        return await this.query(query);
+    }
+
+    // Get all objects (fallback when no specific IDs)
+    async getAllObjects() {
+        const query = `
+            query {
+                object(limit: 100) {
+                    id
+                    name
+                    type
+                    attrs
+                }
+            }
+        `;
+        return await this.query(query);
+    }
+
+
 }
 
 // Initialize GraphQL client

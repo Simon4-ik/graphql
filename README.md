@@ -2,6 +2,40 @@
 
 A modern, interactive profile page built with GraphQL that displays student information from Tomorrow School's API. This application demonstrates GraphQL querying, JWT authentication, and data visualization using SVG graphs.
 
+## Project Requirements Compliance
+
+This project fulfills all the requirements for the Tomorrow School GraphQL profile assignment:
+
+### ✅ Login Page
+- **JWT Authentication**: Uses Tomorrow School's signin endpoint with Basic authentication
+- **Dual Login Support**: Works with both username:password and email:password
+- **Error Handling**: Displays appropriate error messages for invalid credentials
+- **Logout Functionality**: Complete session management with logout capability
+
+### ✅ Profile Information Display
+- **Basic User Identification**: User ID, login, name, and email
+- **XP Amount**: Total XP with detailed breakdown by type (projects vs exercises)
+- **Grades/Audits**: Audit performance with success rates and statistics
+- **Additional Features**: Rank and level system, progress overview
+
+### ✅ Statistics Graphs (SVG)
+- **6 Interactive SVG Graphs** (exceeds minimum requirement of 2):
+  1. **XP Progression Graph** - Your progress compared to all students
+  2. **XP Over Time Graph** - Cumulative XP progression with area chart
+  3. **Success Rate Graph** - Project pass/fail ratio with pie chart
+  4. **XP by Type Graph** - Project vs exercise XP breakdown
+  5. **Monthly Progress Graph** - Monthly XP earnings with bar chart
+  6. **Audit Ratio Graph** - Audit performance visualization
+- **Interactive Features**: Time period selection, population filtering
+- **Animations**: Smooth transitions and hover effects
+- **Modern UI**: Gradient backgrounds, responsive design
+
+### ✅ GraphQL Integration
+- **Proper GraphQL Client**: Custom implementation with error handling
+- **JWT Bearer Authentication**: Secure API access with user-specific data
+- **User Data Filtering**: Only displays data belonging to authenticated user
+- **Comprehensive Queries**: Fetches user, transaction, progress, result, and object data
+
 ## Features
 
 ### 🔐 Authentication
