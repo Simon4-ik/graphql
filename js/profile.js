@@ -43,11 +43,11 @@ class ProfileManager {
 
             // Access data using the correct structure from the API
             // Note: GraphQL client returns data.data, so we access the fields directly
-            this.userData = userData.user && userData.user[0] ? userData.user[0] : null;
+            this.userData = userData.user && userData.user.length > 0 ? userData.user[0] : null;
             this.transactions = transactionsData.transaction || [];
             this.progress = progressData.progress || [];
             this.results = resultsData.result || [];
-            this.rankData = rankData.user && rankData.user[0] ? rankData.user[0] : null;
+            this.rankData = rankData.user && rankData.user.length > 0 ? rankData.user[0] : null;
             this.xpDistribution = xpDistributionData.transaction || []; // Use transaction data for distribution
             
 
@@ -67,6 +67,19 @@ class ProfileManager {
             console.log('Transactions response:', transactionsData);
             console.log('Progress response:', progressData);
             console.log('Results response:', resultsData);
+            
+            // Calculate and log XP totals for debugging
+            const totalXp = this.transactions
+                .filter(t => t.type === 'xp')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+            console.log('Total XP from transactions:', totalXp);
+            
+            // Log audit data for debugging
+            const allResults = [...this.progress, ...this.results];
+            const auditResults = allResults.filter(p => p.grade !== null);
+            const done = auditResults.filter(p => p.grade === 1).length;
+            const received = auditResults.length;
+            console.log('Audit data - Total:', received, 'Passed:', done, 'Ratio:', received > 0 ? (done / received).toFixed(1) : 0);
             
             // Check for grades in progress and results
             if (this.progress.length > 0) {
@@ -112,7 +125,6 @@ class ProfileManager {
             // Update UI with loaded data
             this.updateUserInfo();
             this.updateXpInfo();
-            this.updateProgressInfo();
             this.updateAuditInfo();
             this.updateRankAndLevel();
             this.updateAuditPerformance();
@@ -121,7 +133,6 @@ class ProfileManager {
             if (this.objects.length > 0) {
                 console.log('🔄 Objects loaded, updating UI with complete data...');
                 this.updateXpInfo();
-                this.updateProgressInfo();
                 this.updateAuditInfo();
             }
             
@@ -143,7 +154,7 @@ class ProfileManager {
 
     showLoadingState() {
         // Add loading indicators to various sections
-        const elements = ['userFullName', 'userId', 'userLogin', 'currentDate', 'totalXp', 'projectXp', 'exerciseXp', 'totalProjects', 'passedProjects', 'successRate', 'totalAudits', 'passedAudits', 'auditSuccessRate'];
+        const elements = ['userFullName', 'userId', 'userLogin', 'currentDate', 'totalXp', 'totalAudits', 'passedAudits', 'auditSuccessRate'];
         elements.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -162,7 +173,10 @@ class ProfileManager {
         if (this.userData) {
             // Update basic user info
             document.getElementById('userId').textContent = this.userData.id || '-';
-            document.getElementById('userLogin').textContent = this.userData.login || '-';
+            
+            // Extract login from profile or use ID as fallback
+            const login = this.extractLoginFromProfile() || `User ${this.userData.id}`;
+            document.getElementById('userLogin').textContent = login;
             
             // Update full name
             const fullName = this.getFullName();
@@ -173,12 +187,57 @@ class ProfileManager {
         }
     }
 
+    // Extract login from profile data
+    extractLoginFromProfile() {
+        if (!this.userData || !this.userData.profile) return null;
+        
+        try {
+            // Profile might be a JSON string or object
+            const profile = typeof this.userData.profile === 'string' 
+                ? JSON.parse(this.userData.profile) 
+                : this.userData.profile;
+            
+            return profile.login || profile.githubLogin || profile.username || null;
+        } catch (error) {
+            console.log('Could not parse profile data:', error);
+            return null;
+        }
+    }
+
     // Get full name from user data
     getFullName() {
         if (!this.userData) return '-';
         
-        const firstName = this.userData.firstName || '';
-        const lastName = this.userData.lastName || '';
+        // Try to get name from profile data
+        let firstName = '';
+        let lastName = '';
+        
+        if (this.userData.profile) {
+            try {
+                const profile = typeof this.userData.profile === 'string' 
+                    ? JSON.parse(this.userData.profile) 
+                    : this.userData.profile;
+                
+                firstName = profile.firstName || profile.first_name || '';
+                lastName = profile.lastName || profile.last_name || '';
+            } catch (error) {
+                console.log('Could not parse profile for name:', error);
+            }
+        }
+        
+        // Try to get name from attrs
+        if ((!firstName && !lastName) && this.userData.attrs) {
+            try {
+                const attrs = typeof this.userData.attrs === 'string' 
+                    ? JSON.parse(this.userData.attrs) 
+                    : this.userData.attrs;
+                
+                firstName = attrs.firstName || attrs.first_name || '';
+                lastName = attrs.lastName || attrs.last_name || '';
+            } catch (error) {
+                console.log('Could not parse attrs for name:', error);
+            }
+        }
         
         if (firstName && lastName) {
             return `${firstName} ${lastName}`;
@@ -187,8 +246,9 @@ class ProfileManager {
         } else if (lastName) {
             return lastName;
         } else {
-            // Fallback to login if no name available
-            return this.userData.login || 'Unknown User';
+            // Fallback to login or user ID
+            const login = this.extractLoginFromProfile();
+            return login || `User ${this.userData.id}`;
         }
     }
 
@@ -250,116 +310,8 @@ class ProfileManager {
         }
 
         document.getElementById('totalXp').textContent = totalXp.toLocaleString();
-        document.getElementById('projectXp').textContent = projectXp.toLocaleString();
-        document.getElementById('exerciseXp').textContent = exerciseXp.toLocaleString();
     }
 
-    updateProgressInfo() {
-        // Calculate project statistics from progress and results data
-        console.log('🔍 Calculating project statistics...');
-        console.log('Progress data:', this.progress.length);
-        console.log('Results data:', this.results.length);
-        console.log('Objects data:', this.objects.length);
-        console.log('Sample progress records:', this.progress.slice(0, 3));
-        console.log('Sample result records:', this.results.slice(0, 3));
-        
-        // First, let's try to get all progress and results data regardless of object type
-        let allProgress = this.progress || [];
-        let allResults = this.results || [];
-        
-        console.log('All progress records:', allProgress.length);
-        console.log('All result records:', allResults.length);
-        
-        // Count total attempts (both progress and results)
-        let totalAttempts = allProgress.length + allResults.length;
-        let passedAttempts = 0;
-        
-        // Count passed attempts from progress
-        allProgress.forEach(p => {
-            if (p.grade === 1) {
-                passedAttempts++;
-            }
-        });
-        
-        // Count passed attempts from results
-        allResults.forEach(r => {
-            if (r.grade === 1) {
-                passedAttempts++;
-            }
-        });
-        
-        console.log('Total attempts:', totalAttempts);
-        console.log('Passed attempts:', passedAttempts);
-        
-        // If we have objects data, try to identify projects specifically
-        let projectResults = [];
-        if (this.objects.length > 0) {
-            const projectObjects = this.objects.filter(o => o.type === 'project');
-            console.log('Found project objects:', projectObjects.length);
-            
-            if (projectObjects.length > 0) {
-                // Find progress/results for project objects
-                projectResults = allProgress.filter(p => 
-                    projectObjects.some(po => po.id === p.objectId)
-                );
-                
-                // Also add results
-                const projectResultsFromResults = allResults.filter(r => 
-                    projectObjects.some(po => po.id === r.objectId)
-                );
-                
-                projectResults = [...projectResults, ...projectResultsFromResults];
-            }
-        }
-        
-        // Calculate project statistics
-        let totalProjects = projectResults.length;
-        let passedProjects = projectResults.filter(r => r.grade === 1).length;
-        
-        console.log('Project-specific results:', { totalProjects, passedProjects });
-        
-        // If no specific project data found, use all data as projects
-        if (totalProjects === 0 && totalAttempts > 0) {
-            console.log('⚠️ No specific project data found, using all progress/results as projects');
-            totalProjects = totalAttempts;
-            passedProjects = passedAttempts;
-        }
-        
-        // If still no data, try to get data from transactions
-        if (totalProjects === 0 && this.transactions.length > 0) {
-            console.log('⚠️ No progress/results data, trying transactions...');
-            const xpTransactions = this.transactions.filter(t => t.type === 'xp');
-            totalProjects = xpTransactions.length;
-            // Estimate passed projects based on transaction amounts (higher amounts = passed)
-            const sortedTransactions = xpTransactions.sort((a, b) => (b.amount || 0) - (a.amount || 0));
-            const estimatedPassed = Math.floor(sortedTransactions.length * 0.8);
-            passedProjects = estimatedPassed;
-            console.log('Estimated from transactions:', { totalProjects, passedProjects });
-        }
-        
-        // Don't use fallback data - show actual data or 0
-        if (totalProjects === 0) {
-            console.log('⚠️ No project data found in API - showing 0');
-            totalProjects = 0;
-            passedProjects = 0;
-        }
-        
-        const successRate = totalProjects > 0 ? Math.round((passedProjects / totalProjects) * 100) : 0;
-
-        console.log('Final project calculation:', {
-            totalProjects,
-            passedProjects,
-            successRate,
-            projectResults: projectResults.length,
-            progressData: this.progress.length,
-            resultsData: this.results.length,
-            objectsData: this.objects.length
-        });
-
-        document.getElementById('totalProjects').textContent = totalProjects;
-        document.getElementById('passedProjects').textContent = passedProjects;
-        document.getElementById('successRate').textContent = `${successRate}%`;
-    }
 
     updateAuditInfo() {
         // Calculate audit statistics from progress data
@@ -538,7 +490,7 @@ class ProfileManager {
 
     // Update rank and level information
     updateRankAndLevel() {
-        // Calculate rank and level from transaction data
+        // Calculate rank and level from actual transaction data
         const totalXp = this.transactions
             .filter(t => t.type === 'xp')
             .reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -547,32 +499,40 @@ class ProfileManager {
         console.log('Total XP from transactions:', totalXp);
         console.log('XP transactions:', this.transactions.filter(t => t.type === 'xp'));
         
-        // Tomorrow School level calculation: Level = floor(XP / 1000) + 1
-        // This matches the actual Tomorrow School leveling system
-        let level = Math.floor(totalXp / 1000) + 1;
+        // Tomorrow School level calculation based on actual XP
+        let level = 1; // Start at level 1
+        let nextLevelXp = 0;
         
-        // If the calculated level seems too high or too low, use a fallback
-        // Based on your actual level 25, let's adjust the calculation
         if (totalXp > 0) {
-            // If we have XP data, use it but cap at reasonable levels
-            level = Math.min(level, 50); // Cap at level 50 max
+            // Calculate level based on XP (simplified Tomorrow School progression)
+            // Each level requires more XP than the previous
+            let currentXp = totalXp;
+            let requiredXp = 1000; // First level requires 1000 XP
+            
+            while (currentXp >= requiredXp) {
+                level++;
+                currentXp -= requiredXp;
+                requiredXp = Math.floor(requiredXp * 1.1); // Each level requires 10% more XP
+            }
+            
+            // Calculate XP needed for next level
+            nextLevelXp = requiredXp - currentXp;
         } else {
-            // If no XP data, use a default level based on typical Tomorrow School progression
-            level = 25; // Your actual level
+            // If no XP data, show level 1
+            level = 1;
+            nextLevelXp = 1000;
         }
         
-        // For now, let's use your actual level 25 until we get the correct XP data
-        level = 25;
-        // Use the actual next level XP from Tomorrow School (36.6 kB)
-        const nextLevelXp = 36600; // 36.6 kB in bytes
+        // Cap level at reasonable maximum
+        level = Math.min(level, 50);
         
         // Determine rank based on level (Tomorrow School progression)
         let rank = 'Beginner';
         if (level >= 50) {
             rank = 'Expert Developer';
-        } else if (level >= 30) {
+        } else if (level >= 40) {
             rank = 'Senior Developer';
-        } else if (level >= 20) {
+        } else if (level >= 25) {
             rank = 'Developer';
         } else if (level >= 15) {
             rank = 'Apprentice Developer';
@@ -580,27 +540,49 @@ class ProfileManager {
             rank = 'Junior Developer';
         } else if (level >= 5) {
             rank = 'Trainee';
+        } else {
+            rank = 'Beginner';
         }
         
         document.getElementById('currentRank').textContent = rank;
         document.getElementById('currentLevel').textContent = level;
-        document.getElementById('nextLevelXp').textContent = this.formatXp(Math.max(nextLevelXp, 0));
+        document.getElementById('nextLevelXp').textContent = this.formatXp(nextLevelXp);
         document.getElementById('nextRankInfo').textContent = `Next rank in ${this.calculateLevelsToNextRank(level)} levels`;
     }
 
     // Update audit performance
     updateAuditPerformance() {
-        // Calculate from progress data
-        const auditResults = this.progress.filter(p => p.grade !== null);
+        // Calculate from actual progress and results data
+        const allResults = [...this.progress, ...this.results];
+        const auditResults = allResults.filter(p => p.grade !== null);
+        
+        // Calculate done (passed) and received (total) audits
         const done = auditResults.filter(p => p.grade === 1).length;
         const received = auditResults.length;
         const ratio = received > 0 ? (done / received).toFixed(1) : 0;
+        
+        console.log('📊 Audit Performance Debug:');
+        console.log('Total audit results:', received);
+        console.log('Passed audits:', done);
+        console.log('Audit ratio:', ratio);
+        
+        // If no audit data, show 0 values
+        if (received === 0) {
+            document.getElementById('auditDoneValue').textContent = '0';
+            document.getElementById('auditReceivedValue').textContent = '0';
+            document.getElementById('auditRatio').textContent = '0.0';
+            document.getElementById('auditDoneBar').style.width = '0%';
+            document.getElementById('auditReceivedBar').style.width = '0%';
+            document.getElementById('auditStatus').textContent = 'No audit data';
+            document.getElementById('auditStatus').className = 'audit-status warning';
+            return;
+        }
         
         document.getElementById('auditDoneValue').textContent = done;
         document.getElementById('auditReceivedValue').textContent = received;
         document.getElementById('auditRatio').textContent = ratio;
         
-        // Update progress bars
+        // Update progress bars - normalize to 100% scale
         const maxValue = Math.max(done, received, 1);
         const donePercentage = (done / maxValue) * 100;
         const receivedPercentage = (received / maxValue) * 100;
@@ -608,13 +590,21 @@ class ProfileManager {
         document.getElementById('auditDoneBar').style.width = `${donePercentage}%`;
         document.getElementById('auditReceivedBar').style.width = `${receivedPercentage}%`;
         
-        // Update status
+        // Update status based on actual ratio
         const statusElement = document.getElementById('auditStatus');
-        if (ratio < 0.5) {
-            statusElement.textContent = 'Careful buddy!';
+        const ratioValue = parseFloat(ratio);
+        
+        if (ratioValue < 0.3) {
+            statusElement.textContent = 'Needs improvement';
             statusElement.className = 'audit-status warning';
+        } else if (ratioValue < 0.6) {
+            statusElement.textContent = 'Good progress';
+            statusElement.className = 'audit-status warning';
+        } else if (ratioValue < 0.8) {
+            statusElement.textContent = 'Well done!';
+            statusElement.className = 'audit-status good';
         } else {
-            statusElement.textContent = 'Great job!';
+            statusElement.textContent = 'Excellent!';
             statusElement.className = 'audit-status good';
         }
     }

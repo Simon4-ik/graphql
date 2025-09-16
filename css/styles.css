@@ -259,61 +259,7 @@ body {
     font-weight: 700;
 }
 
-.xp-breakdown {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
 
-.xp-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border-left: 4px solid #667eea;
-}
-
-.xp-type {
-    font-weight: 500;
-    color: #666;
-}
-
-.xp-amount {
-    font-weight: 600;
-    color: #333;
-    font-size: 1.1rem;
-}
-
-/* Progress Styles */
-.progress-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.progress-item {
-    text-align: center;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    border: 2px solid #e9ecef;
-}
-
-.progress-label {
-    display: block;
-    font-weight: 500;
-    color: #666;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-}
-
-.progress-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #667eea;
-}
 
 /* Audit Styles */
 .audit-info {
@@ -555,19 +501,6 @@ svg {
     color: #fff;
 }
 
-.see-all-ranks, .see-all-levels {
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    opacity: 0.8;
-    margin-left: 10px;
-}
-
-.see-all-ranks:hover, .see-all-levels:hover {
-    opacity: 1;
-    text-decoration: underline;
-}
-
 .level-progress {
     display: flex;
     flex-direction: column;
@@ -783,6 +716,15 @@ svg {
     gap: 15px;
     margin-bottom: 15px;
     flex-wrap: wrap;
+}
+
+/* Graph Timestamp */
+.graph-timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+    font-style: italic;
 }
 
 .graph-controls label {

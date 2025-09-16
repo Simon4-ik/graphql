@@ -221,22 +221,103 @@ class GraphQLClient {
 
     // Simple query - get user information
     async getUserInfo() {
-        return await this.query('query { user { id login firstName lastName email } }');
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserInfo($userId: Int!) {
+                user(where: { id: { _eq: $userId } }) {
+                    id
+                    profile
+                    attrs
+                    campus
+                    createdAt
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
     // Simple query - get transactions
     async getUserTransactions() {
-        return await this.query('query { transaction { id type amount objectId userId createdAt path } }');
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserTransactions($userId: Int!) {
+                transaction(where: { userId: { _eq: $userId } }) {
+                    id
+                    type
+                    amount
+                    objectId
+                    eventId
+                    userId
+                    createdAt
+                    path
+                    campus
+                    attrs
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
     // Simple query - get progress
     async getUserProgress() {
-        return await this.query('query { progress { id userId objectId grade createdAt updatedAt path } }');
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserProgress($userId: Int!) {
+                progress(where: { userId: { _eq: $userId } }) {
+                    id
+                    userId
+                    groupId
+                    eventId
+                    objectId
+                    grade
+                    isDone
+                    version
+                    createdAt
+                    updatedAt
+                    path
+                    campus
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
     // Simple query - get results
     async getUserResults() {
-        return await this.query('query { result { id objectId userId grade type createdAt updatedAt path } }');
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserResults($userId: Int!) {
+                result(where: { userId: { _eq: $userId } }) {
+                    id
+                    userId
+                    groupId
+                    objectId
+                    eventId
+                    grade
+                    type
+                    isLast
+                    version
+                    attrs
+                    createdAt
+                    updatedAt
+                    path
+                    campus
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
     // Helper method to extract user ID from current token
@@ -269,6 +350,9 @@ class GraphQLClient {
                     name
                     type
                     attrs
+                    createdAt
+                    updatedAt
+                    campus
                 }
             }
         `;
@@ -277,32 +361,24 @@ class GraphQLClient {
 
     // Query with arguments - get multiple objects by IDs
     async getObjects(objectIds = []) {
-        try {
-            const schema = await this.discoverSchema();
-            const possibleObjectFields = ['object', 'objects', 'course_object', 'course_objects', 'exercise', 'exercises'];
-            
-            for (const fieldName of possibleObjectFields) {
-                if (schema.__schema.queryType.fields.some(f => f.name === fieldName)) {
-                    console.log(`Found object field: ${fieldName}`);
-                    const query = `
-                        query GetObjects($objectIds: [Int!]) {
-                            ${fieldName}(where: { id: { _in: $objectIds } }) {
-                                id
-                                name
-                                type
-                                attrs
-                            }
-                        }
-                    `;
-                    return await this.query(query, { objectIds });
+        if (!objectIds || objectIds.length === 0) {
+            return { object: [] };
+        }
+        
+        const query = `
+            query GetObjects($objectIds: [Int!]) {
+                object(where: { id: { _in: $objectIds } }) {
+                    id
+                    name
+                    type
+                    attrs
+                    createdAt
+                    updatedAt
+                    campus
                 }
             }
-            
-            throw new Error('No object field found in schema');
-        } catch (error) {
-            console.error('Objects query failed:', error);
-            throw error;
-        }
+        `;
+        return await this.query(query, { objectIds });
     }
 
     // Nested query - get results with user information
@@ -349,35 +425,140 @@ class GraphQLClient {
 
     // Get user rank and level information
     async getUserRankAndLevel() {
-        const query = `
-            query {
-                user {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserRankAndLevel($userId: Int!) {
+                user(where: { id: { _eq: $userId } }) {
                     id
-                    login
-                    firstName
-                    lastName
-                    email
-                }
-            }
-        `;
-        return await this.query(query);
-    }
-
-    // Get audit statistics
-    async getAuditStats() {
-        const query = `
-            query {
-                progress {
-                    id
-                    userId
-                    objectId
-                    grade
+                    profile
+                    attrs
+                    campus
                     createdAt
                     updatedAt
                 }
             }
-        `;
-        return await this.query(query);
+        `, { userId: parseInt(userId) });
+    }
+
+    // Get user groups
+    async getUserGroups() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserGroups($userId: Int!) {
+                group_user(where: { userId: { _eq: $userId } }) {
+                    id
+                    userId
+                    groupId
+                    confirmed
+                    createdAt
+                    updatedAt
+                    group {
+                        id
+                        objectId
+                        eventId
+                        captainId
+                        path
+                        campus
+                        createdAt
+                        updatedAt
+                    }
+                }
+            }
+        `, { userId: parseInt(userId) });
+    }
+
+    // Get user events
+    async getUserEvents() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserEvents($userId: Int!) {
+                event_user(where: { userId: { _eq: $userId } }) {
+                    id
+                    userId
+                    eventId
+                    createdAt
+                    event {
+                        id
+                        createdAt
+                        endAt
+                        registrationId
+                        objectId
+                        parentId
+                        status
+                        path
+                        campus
+                        code
+                    }
+                }
+            }
+        `, { userId: parseInt(userId) });
+    }
+
+    // Get audit statistics
+    async getAuditStats() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetAuditStats($userId: Int!) {
+                audit(where: { auditorId: { _eq: $userId } }) {
+                    id
+                    groupId
+                    auditorId
+                    grade
+                    attrs
+                    createdAt
+                    updatedAt
+                    resultId
+                    version
+                    endAt
+                    private
+                }
+            }
+        `, { userId: parseInt(userId) });
+    }
+
+    // Get audits where user is being audited
+    async getAuditsForUser() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetAuditsForUser($userId: Int!) {
+                group_user(where: { userId: { _eq: $userId } }) {
+                    group {
+                        audit {
+                            id
+                            groupId
+                            auditorId
+                            grade
+                            attrs
+                            createdAt
+                            updatedAt
+                            resultId
+                            version
+                            endAt
+                        }
+                    }
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
 
@@ -399,18 +580,87 @@ class GraphQLClient {
     }
 
     // Get all objects (fallback when no specific IDs)
-    async getAllObjects() {
+    async getAllObjects(limit = 100) {
         const query = `
-            query {
-                object(limit: 100) {
+            query GetAllObjects($limit: Int!) {
+                object(limit: $limit, order_by: { createdAt: desc }) {
                     id
                     name
                     type
                     attrs
+                    createdAt
+                    updatedAt
+                    campus
                 }
             }
         `;
-        return await this.query(query);
+        return await this.query(query, { limit });
+    }
+
+    // Get objects by type
+    async getObjectsByType(objectType, limit = 50) {
+        const query = `
+            query GetObjectsByType($objectType: String!, $limit: Int!) {
+                object(where: { type: { _eq: $objectType } }, limit: $limit, order_by: { createdAt: desc }) {
+                    id
+                    name
+                    type
+                    attrs
+                    createdAt
+                    updatedAt
+                    campus
+                }
+            }
+        `;
+        return await this.query(query, { objectType, limit });
+    }
+
+    // Get user records (bans, etc.)
+    async getUserRecords() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserRecords($userId: Int!) {
+                record(where: { userId: { _eq: $userId } }) {
+                    id
+                    userId
+                    authorId
+                    message
+                    banEndAt
+                    createdAt
+                }
+            }
+        `, { userId: parseInt(userId) });
+    }
+
+    // Get user matches (for bonus exercises)
+    async getUserMatches() {
+        const userId = this.extractUserIdFromCurrentToken();
+        if (!userId) {
+            throw new Error('User ID not found in token');
+        }
+        
+        return await this.query(`
+            query GetUserMatches($userId: Int!) {
+                match(where: { userId: { _eq: $userId } }) {
+                    id
+                    createdAt
+                    updatedAt
+                    objectId
+                    userId
+                    matchId
+                    confirmed
+                    bet
+                    result
+                    path
+                    campus
+                    eventId
+                }
+            }
+        `, { userId: parseInt(userId) });
     }
 
 

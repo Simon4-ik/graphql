@@ -74,37 +74,9 @@
                         <span class="xp-label">Total XP:</span>
                         <span id="totalXp" class="xp-value">0</span>
                     </div>
-                    <div class="xp-breakdown">
-                        <div class="xp-item">
-                            <span class="xp-type">From Projects:</span>
-                            <span id="projectXp" class="xp-amount">0</span>
-                        </div>
-                        <div class="xp-item">
-                            <span class="xp-type">From Exercises:</span>
-                            <span id="exerciseXp" class="xp-amount">0</span>
-                        </div>
-                    </div>
                 </div>
             </section>
 
-            <!-- Progress Section -->
-            <section class="profile-section">
-                <h2>Progress Overview</h2>
-                <div class="progress-info">
-                    <div class="progress-item">
-                        <span class="progress-label">Total Projects:</span>
-                        <span id="totalProjects" class="progress-value">0</span>
-                    </div>
-                    <div class="progress-item">
-                        <span class="progress-label">Passed Projects:</span>
-                        <span id="passedProjects" class="progress-value">0</span>
-                    </div>
-                    <div class="progress-item">
-                        <span class="progress-label">Success Rate:</span>
-                        <span id="successRate" class="progress-value">0%</span>
-                    </div>
-                </div>
-            </section>
 
             <!-- Audit Ratio Section -->
             <section class="profile-section">
@@ -224,10 +196,12 @@
                     <div class="graph-card">
                         <h3>XP by Project Type</h3>
                         <div id="xpByTypeGraph" class="graph"></div>
+                        <div class="graph-timestamp" id="xpByTypeTimestamp"></div>
                     </div>
                     <div class="graph-card">
                         <h3>Monthly Progress</h3>
                         <div id="monthlyProgressGraph" class="graph"></div>
+                        <div class="graph-timestamp" id="monthlyProgressTimestamp"></div>
                     </div>
                     <div class="graph-card">
                         <h3>Audit Success Rate</h3>
