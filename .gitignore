@@ -1,0 +1,18 @@
+# Local data
+db.json
+
+# Claude
+CLAUDE.md
+.claude/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

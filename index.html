@@ -3,227 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GraphQL Profile - Tomorrow School</title>
+    <title>GraphQL Profile · Tomorrow School</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Login Page -->
     <div id="loginPage" class="page">
         <div class="login-container">
             <div class="login-card">
-                <h1>Welcome to Tomorrow School</h1>
-                <h2>Sign In to View Your Profile</h2>
-                
+                <div class="login-brand">
+                    <div class="brand-mark"></div>
+                    <span>Tomorrow School</span>
+                </div>
+                <h2>Sign in to your profile</h2>
+
                 <form id="loginForm">
                     <div class="form-group">
-                        <label for="username">Username or Email:</label>
-                        <input type="text" id="username" name="username" required>
+                        <label for="username">Username or email</label>
+                        <input type="text" id="username" name="username" autocomplete="username" required>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" required>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" autocomplete="current-password" required>
                     </div>
-                    
-                    <button type="submit" class="login-btn">Sign In</button>
+
+                    <button type="submit" class="login-btn">Sign in</button>
                 </form>
-                
-                <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+                <div id="errorMessage" class="error-message" style="display:none"></div>
             </div>
         </div>
     </div>
 
-    <!-- Profile Page -->
-    <div id="profilePage" class="page" style="display: none;">
+    <div id="profilePage" class="page" style="display:none">
         <header class="profile-header">
             <div class="header-content">
-                <h1>My Profile</h1>
-                <button id="logoutBtn" class="logout-btn">Logout</button>
+                <div class="brand">
+                    <div class="brand-mark"></div>
+                    <span>Tomorrow School</span>
+                </div>
+                <div class="header-user">
+                    <span class="header-login">@<span id="headerLogin">-</span></span>
+                    <span class="header-pill">Level <strong id="headerLevel">0</strong></span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
             </div>
         </header>
 
         <main class="profile-main">
-            <!-- User Info Section -->
-            <section class="profile-section">
-                <h2>Basic Information</h2>
-                <div class="user-info">
-                    <div class="info-item">
-                        <span class="label">Full Name:</span>
-                        <span id="userFullName" class="value">-</span>
+            <section class="card identity-card">
+                <div class="avatar" id="avatar">·</div>
+                <div class="identity-text">
+                    <div class="identity-name" id="userFullName">-</div>
+                    <div class="identity-meta">
+                        <span class="meta-pill">@<span id="userLogin">-</span></span>
+                        <span class="meta-pill">ID <span id="userId">-</span></span>
+                        <span class="meta-pill" id="userCampus">-</span>
                     </div>
-                    <div class="info-item">
-                        <span class="label">ID:</span>
-                        <span id="userId" class="value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Login:</span>
-                        <span id="userLogin" class="value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Current Date:</span>
-                        <span id="currentDate" class="value">-</span>
+                    <div class="identity-meta-secondary">
+                        <span id="userEmail">-</span>
                     </div>
                 </div>
             </section>
 
-            <!-- XP Section -->
-            <section class="profile-section">
-                <h2>Experience Points</h2>
-                <div class="xp-info">
-                    <div class="xp-total">
-                        <span class="xp-label">Total XP:</span>
-                        <span id="totalXp" class="xp-value">0</span>
-                    </div>
+            <section class="program-selector card">
+                <div class="program-selector-head">
+                    <span class="program-selector-label">Program</span>
+                    <span class="program-selector-hint" id="programHint">Showing all activity</span>
+                </div>
+                <div class="program-tabs" id="programTabs" role="tablist">
+                    <button class="program-tab is-active" data-program="all" role="tab" aria-selected="true">All</button>
+                    <button class="program-tab" data-program="core-education" role="tab">Core Education</button>
+                    <button class="program-tab" data-program="piscine-js" role="tab">Piscine JS</button>
+                    <button class="program-tab" data-program="piscine-go" role="tab">Piscine Go</button>
+                    <button class="program-tab" data-program="piscine-ai" role="tab">Piscine AI</button>
+                    <button class="program-tab" data-program="piscine-rust" role="tab">Piscine Rust</button>
                 </div>
             </section>
 
-
-            <!-- Audit Ratio Section -->
-            <section class="profile-section">
-                <h2>Audit Statistics</h2>
-                <div class="audit-info">
-                    <div class="audit-item">
-                        <span class="audit-label">Total Audits:</span>
-                        <span id="totalAudits" class="audit-value">0</span>
+            <section class="stats-row">
+                <div class="card stat-card stat-card-level">
+                    <div class="stat-label">Current Level</div>
+                    <div id="levelCircle" class="level-circle"></div>
+                    <div id="levelEventLabel" class="stat-sub">—</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-label">Total XP</div>
+                    <div class="stat-value" id="totalXp">0</div>
+                    <div class="stat-sub">
+                        <span id="passedProjects">0</span> / <span id="totalProjects">0</span> projects passed
                     </div>
-                    <div class="audit-item">
-                        <span class="audit-label">Passed Audits:</span>
-                        <span id="passedAudits" class="audit-value">0</span>
-                    </div>
-                    <div class="audit-item">
-                        <span class="audit-label">Audit Success Rate:</span>
-                        <span id="auditSuccessRate" class="audit-value">0%</span>
-                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-label">Audit Ratio</div>
+                    <div class="stat-value" id="auditRatio">0.0</div>
+                    <div id="auditRatioStatus" class="stat-sub">—</div>
                 </div>
             </section>
 
-
-
-            <!-- Rank & Level Section -->
-            <section class="profile-section rank-section">
-                <h2>Current Rank & Level</h2>
-                <div class="rank-container">
-                    <div class="rank-info">
-                        <div class="current-rank">
-                            <span class="rank-label">Current Rank:</span>
-                            <span id="currentRank" class="rank-value">Apprentice Developer</span>
-                        </div>
-                        <div class="next-rank">
-                            <span class="next-rank-label">Next Rank:</span>
-                            <span id="nextRankInfo" class="next-rank-value">Next rank in 5 levels</span>
-                        </div>
-                    </div>
-                    <div class="level-progress">
-                        <div class="level-circle">
-                            <div id="levelCircle" class="level-circle-inner">
-                                <span id="currentLevel" class="level-number">25</span>
-                            </div>
-                        </div>
-                        <div class="next-level-info">
-                            <span class="next-level-label">Next level in</span>
-                            <span id="nextLevelXp" class="next-level-xp">36.6 kB</span>
-                        </div>
-                    </div>
-                </div>
+            <section class="card audit-card">
+                <h3>Audits</h3>
+                <div id="auditBars" class="graph"></div>
             </section>
 
-            <!-- Audit Performance Section -->
-            <section class="profile-section audit-section">
-                <h2>Audit Performance</h2>
-                <div class="audit-container">
-                    <div class="audit-stats">
-                        <div class="audit-item">
-                            <div class="audit-label">Done</div>
-                            <div class="audit-progress">
-                                <div class="progress-bar">
-                                    <div id="auditDoneBar" class="progress-fill done"></div>
-                                </div>
-                                <span id="auditDoneValue" class="audit-value">811 kB</span>
-                                <span id="auditDoneChange" class="audit-change positive">+ 20.8 kB</span>
-                            </div>
-                        </div>
-                        <div class="audit-item">
-                            <div class="audit-label">Received</div>
-                            <div class="audit-progress">
-                                <div class="progress-bar">
-                                    <div id="auditReceivedBar" class="progress-fill received"></div>
-                                </div>
-                                <span id="auditReceivedValue" class="audit-value">1.87 MB</span>
-                                <span id="auditReceivedChange" class="audit-change negative">- 5.2 kB</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="audit-ratio">
-                        <div class="ratio-label">Ratio</div>
-                        <div id="auditRatio" class="ratio-value">0.4</div>
-                        <div id="auditStatus" class="audit-status warning">Careful buddy!</div>
-                    </div>
-                </div>
+            <section class="card constellation-card">
+                <h3>Project Constellation</h3>
+                <div id="constellation" class="graph constellation"></div>
             </section>
 
-
-
-
-
-            <!-- Statistics Graphs Section -->
-            <section class="profile-section">
-                <h2>Statistics & Analytics</h2>
-                <p class="section-description">Interactive SVG graphs showing your learning journey and achievements at Tomorrow School</p>
-                <div class="graphs-container">
-                    <div class="graph-card">
-                        <h3>XP Progression</h3>
-                        <div class="graph-controls">
-                            <select id="timePeriodSelect">
-                                <option value="6months">Last 6 months</option>
-                                <option value="1year">Last year</option>
-                                <option value="all">All time</option>
-                            </select>
-                            <select id="populationSelect">
-                                <option value="all">All students</option>
-                                <option value="cohort">My cohort</option>
-                            </select>
-                        </div>
-                        <div id="xpProgressionGraph" class="graph"></div>
-                    </div>
-                    <div class="graph-card">
-                        <h3>XP Over Time</h3>
-                        <div id="xpOverTimeGraph" class="graph"></div>
-                    </div>
-                    <div class="graph-card">
-                        <h3>Project Success Rate</h3>
-                        <div id="successRateGraph" class="graph"></div>
-                    </div>
-                    <div class="graph-card">
-                        <h3>XP by Project Type</h3>
-                        <div id="xpByTypeGraph" class="graph"></div>
-                        <div class="graph-timestamp" id="xpByTypeTimestamp"></div>
-                    </div>
-                    <div class="graph-card">
-                        <h3>Monthly Progress</h3>
-                        <div id="monthlyProgressGraph" class="graph"></div>
-                        <div class="graph-timestamp" id="monthlyProgressTimestamp"></div>
-                    </div>
-                    <div class="graph-card">
-                        <h3>Audit Success Rate</h3>
-                        <div id="auditRatioGraph" class="graph"></div>
-                    </div>
+            <section class="charts-row">
+                <div class="card">
+                    <h3>XP Earned Over Time</h3>
+                    <div id="xpOverTimeGraph" class="graph"></div>
+                </div>
+                <div class="card">
+                    <h3>Pass / Fail</h3>
+                    <div id="successRateGraph" class="graph"></div>
                 </div>
             </section>
         </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <p>&copy; 2025 Tomorrow School Profile Dashboard</p>
-                <p>Built with GraphQL, JavaScript, and modern web technologies</p>
-            </div>
-        </footer>
     </div>
 
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="js/graphql-client.js"></script>
-    <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/graphs.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
