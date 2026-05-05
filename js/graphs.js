@@ -446,13 +446,13 @@ function formatDate(d) {
 }
 
 function classifyProject(project) {
-    const path = project.path || '';
+    const path = (project.path || '').toLowerCase();
 
-    if (path.startsWith('/astanahub/module/piscine-js/')) return 'JS';
-    if (path.startsWith('/astanahub/module/piscine-ai/')) return 'AI';
-    if (path.startsWith('/astanahub/module/piscine-rust/')) return 'RUST';
-    if (path.startsWith('/astanahub/piscinego/')) return 'GO';
-    if (path.startsWith('/astanahub/module/')) return 'CORE';
+    if (path.includes('/piscine-js/') || path.includes('/piscinejs/')) return 'JS';
+    if (path.includes('/piscine-ai/') || path.includes('/piscineai/')) return 'AI';
+    if (path.includes('/piscine-rust/') || path.includes('/piscinerust/')) return 'RUST';
+    if (path.includes('/piscine-go/') || path.includes('/piscinego/')) return 'GO';
+    if (path.includes('/module/')) return 'CORE';
     return 'Other';
 }
 

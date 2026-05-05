@@ -9,33 +9,45 @@ class ProfileManager {
     }
 
     filterByProgram(items, program) {
+        // Substring matching so we tolerate any leading prefix (`/astanahub/`,
+        // `/0/`, plain `/module/`, etc.) and both spellings of the Go piscine
+        // (`piscinego` and `piscine-go`).
+        const has = (path, ...needles) => needles.some(n => path.includes(n));
+        const isAnyPiscine = (path) =>
+            /\/piscine-?(js|go|ai|rust)\b/i.test(path);
+
         switch (program) {
+            case 'piscine-js':
+                return items.filter(t => t.path && has(t.path, '/piscine-js/', '/piscinejs/'));
+            case 'piscine-go':
+                return items.filter(t => t.path && has(t.path, '/piscine-go/', '/piscinego/'));
+            case 'piscine-ai':
+                return items.filter(t => t.path && has(t.path, '/piscine-ai/', '/piscineai/'));
+            case 'piscine-rust':
+                return items.filter(t => t.path && has(t.path, '/piscine-rust/', '/piscinerust/'));
             case 'core-education':
                 return items.filter(t =>
-                    t.path && t.path.startsWith('/astanahub/module/') &&
-                    !t.path.includes('/piscine-js/') &&
-                    !t.path.includes('/piscine-ai/') &&
-                    !t.path.includes('/piscine-rust/')
-                );
-            case 'piscine-js':
-                return items.filter(t =>
-                    t.path && t.path.startsWith('/astanahub/module/piscine-js/')
-                );
-            case 'piscine-go':
-                return items.filter(t =>
-                    t.path && t.path.startsWith('/astanahub/piscinego/')
-                );
-            case 'piscine-ai':
-                return items.filter(t =>
-                    t.path && t.path.startsWith('/astanahub/module/piscine-ai/')
-                );
-            case 'piscine-rust':
-                return items.filter(t =>
-                    t.path && t.path.startsWith('/astanahub/module/piscine-rust/')
+                    t.path && has(t.path, '/module/') && !isAnyPiscine(t.path)
                 );
             default:
                 return items;
         }
+    }
+
+    debugProgramPaths() {
+        const samples = new Set();
+        for (const t of this.xpTransactions) {
+            if (!t.path) continue;
+            const head = t.path.split('/').slice(0, 4).join('/');
+            samples.add(head);
+            if (samples.size >= 20) break;
+        }
+        console.log('🧭 Sample path roots (first 20):', [...samples]);
+        const programs = ['all', 'core-education', 'piscine-js', 'piscine-go', 'piscine-ai', 'piscine-rust'];
+        const counts = Object.fromEntries(
+            programs.map(p => [p, this.filterByProgram(this.xpTransactions, p).length])
+        );
+        console.log('🧭 Transactions per program:', counts);
     }
 
     setProgram(program) {
@@ -131,6 +143,7 @@ class ProfileManager {
             this.renderIdentity();
             this.setupProgramTabs();
             this.setupGraphiqlPanel();
+            this.debugProgramPaths();
             this.setProgram(this.program);
         } catch (err) {
             console.error('Failed to load profile:', err);
