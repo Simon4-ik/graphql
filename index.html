@@ -51,76 +51,113 @@
         </header>
 
         <main class="profile-main">
-            <section class="card identity-card">
-                <div class="avatar" id="avatar">·</div>
-                <div class="identity-text">
-                    <div class="identity-name" id="userFullName">-</div>
-                    <div class="identity-meta">
-                        <span class="meta-pill">@<span id="userLogin">-</span></span>
-                        <span class="meta-pill">ID <span id="userId">-</span></span>
-                        <span class="meta-pill" id="userCampus">-</span>
+            <div class="section-group">
+                <h2 class="section-title"><span>1 · User Information</span></h2>
+                <section class="card identity-card">
+                    <div class="avatar" id="avatar">·</div>
+                    <div class="identity-text">
+                        <div class="identity-name" id="userFullName">-</div>
+                        <div class="identity-meta">
+                            <span class="meta-pill">@<span id="userLogin">-</span></span>
+                            <span class="meta-pill">ID <span id="userId">-</span></span>
+                            <span class="meta-pill" id="userCampus">-</span>
+                        </div>
+                        <div class="identity-meta-secondary">
+                            <span id="userEmail">-</span>
+                        </div>
                     </div>
-                    <div class="identity-meta-secondary">
-                        <span id="userEmail">-</span>
+                </section>
+            </div>
+
+            <div class="section-group">
+                <h2 class="section-title"><span>2 · XP &amp; Level</span></h2>
+                <section class="program-selector card">
+                    <div class="program-selector-head">
+                        <span class="program-selector-label">Program</span>
+                        <span class="program-selector-hint" id="programHint">Showing all activity</span>
                     </div>
-                </div>
-            </section>
-
-            <section class="program-selector card">
-                <div class="program-selector-head">
-                    <span class="program-selector-label">Program</span>
-                    <span class="program-selector-hint" id="programHint">Showing all activity</span>
-                </div>
-                <div class="program-tabs" id="programTabs" role="tablist">
-                    <button class="program-tab is-active" data-program="all" role="tab" aria-selected="true">All</button>
-                    <button class="program-tab" data-program="core-education" role="tab">Core Education</button>
-                    <button class="program-tab" data-program="piscine-js" role="tab">Piscine JS</button>
-                    <button class="program-tab" data-program="piscine-go" role="tab">Piscine Go</button>
-                    <button class="program-tab" data-program="piscine-ai" role="tab">Piscine AI</button>
-                    <button class="program-tab" data-program="piscine-rust" role="tab">Piscine Rust</button>
-                </div>
-            </section>
-
-            <section class="stats-row">
-                <div class="card stat-card stat-card-level">
-                    <div class="stat-label">Current Level</div>
-                    <div id="levelCircle" class="level-circle"></div>
-                    <div id="levelEventLabel" class="stat-sub">—</div>
-                </div>
-                <div class="card stat-card">
-                    <div class="stat-label">Total XP</div>
-                    <div class="stat-value" id="totalXp">0</div>
-                    <div class="stat-sub">
-                        <span id="passedProjects">0</span> / <span id="totalProjects">0</span> projects passed
+                    <div class="program-tabs" id="programTabs" role="tablist">
+                        <button class="program-tab is-active" data-program="all" role="tab" aria-selected="true">All</button>
+                        <button class="program-tab" data-program="core-education" role="tab">Core Education</button>
+                        <button class="program-tab" data-program="piscine-js" role="tab">Piscine JS</button>
+                        <button class="program-tab" data-program="piscine-go" role="tab">Piscine Go</button>
+                        <button class="program-tab" data-program="piscine-ai" role="tab">Piscine AI</button>
+                        <button class="program-tab" data-program="piscine-rust" role="tab">Piscine Rust</button>
                     </div>
-                </div>
-                <div class="card stat-card">
-                    <div class="stat-label">Audit Ratio</div>
-                    <div class="stat-value" id="auditRatio">0.0</div>
-                    <div id="auditRatioStatus" class="stat-sub">—</div>
-                </div>
-            </section>
+                </section>
 
-            <section class="card audit-card">
-                <h3>Audits</h3>
-                <div id="auditBars" class="graph"></div>
-            </section>
+                <section class="stats-row">
+                    <div class="card stat-card stat-card-level">
+                        <div class="stat-label">Current Level</div>
+                        <div id="levelCircle" class="level-circle"></div>
+                        <div id="levelEventLabel" class="stat-sub">—</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Total XP</div>
+                        <div class="stat-value" id="totalXp">0</div>
+                        <div class="stat-sub">
+                            <span id="passedProjects">0</span> / <span id="totalProjects">0</span> projects passed
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Audit Ratio</div>
+                        <div class="stat-value" id="auditRatio">0.0</div>
+                        <div id="auditRatioStatus" class="stat-sub">—</div>
+                    </div>
+                </section>
+            </div>
 
-            <section class="card constellation-card">
-                <h3>Project Constellation</h3>
-                <div id="constellation" class="graph constellation"></div>
-            </section>
+            <div class="section-group">
+                <h2 class="section-title"><span>3 · Audits &amp; Projects</span></h2>
+                <section class="card audit-card">
+                    <h3>Audits</h3>
+                    <div id="auditBars" class="graph"></div>
+                </section>
 
-            <section class="charts-row">
-                <div class="card">
-                    <h3>XP Earned Over Time</h3>
-                    <div id="xpOverTimeGraph" class="graph"></div>
-                </div>
-                <div class="card">
-                    <h3>Pass / Fail</h3>
-                    <div id="successRateGraph" class="graph"></div>
-                </div>
-            </section>
+                <section class="card constellation-card">
+                    <h3>Project Constellation</h3>
+                    <div id="constellation" class="graph constellation"></div>
+                </section>
+            </div>
+
+            <div class="section-group">
+                <h2 class="section-title"><span>4 · Statistics</span></h2>
+                <section class="charts-row">
+                    <div class="card">
+                        <h3>XP Earned Over Time</h3>
+                        <div id="xpOverTimeGraph" class="graph"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Pass / Fail</h3>
+                        <div id="successRateGraph" class="graph"></div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="section-group">
+                <h2 class="section-title"><span>Bonus · GraphiQL Playground</span></h2>
+                <section class="card graphiql-card">
+                    <p class="graphiql-hint">Run any GraphQL query against <code>01.tomorrow-school.ai</code> using your active token.</p>
+                    <div class="graphiql-presets" id="graphiqlPresets">
+                        <button class="graphiql-preset" data-preset="user">user (normal)</button>
+                        <button class="graphiql-preset" data-preset="nested">user → events (nested)</button>
+                        <button class="graphiql-preset" data-preset="args">transaction (with args)</button>
+                    </div>
+                    <textarea id="graphiqlInput" class="graphiql-input" rows="8" spellcheck="false">{
+  user {
+    id
+    login
+    firstName
+    lastName
+  }
+}</textarea>
+                    <div class="graphiql-actions">
+                        <button id="graphiqlRun" class="graphiql-run">Run query</button>
+                        <span class="graphiql-status" id="graphiqlStatus"></span>
+                    </div>
+                    <pre id="graphiqlOutput" class="graphiql-output">Result will appear here.</pre>
+                </section>
+            </div>
         </main>
     </div>
 

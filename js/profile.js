@@ -130,6 +130,7 @@ class ProfileManager {
             this.renderHeader();
             this.renderIdentity();
             this.setupProgramTabs();
+            this.setupGraphiqlPanel();
             this.setProgram(this.program);
         } catch (err) {
             console.error('Failed to load profile:', err);
@@ -164,6 +165,90 @@ class ProfileManager {
             .split(/\s+/).filter(Boolean).slice(0, 2)
             .map(s => s[0].toUpperCase()).join('') || u.login.slice(0, 2).toUpperCase();
         document.getElementById('avatar').textContent = initials;
+    }
+
+    setupGraphiqlPanel() {
+        const runBtn = document.getElementById('graphiqlRun');
+        const input = document.getElementById('graphiqlInput');
+        const output = document.getElementById('graphiqlOutput');
+        const status = document.getElementById('graphiqlStatus');
+        const presets = document.getElementById('graphiqlPresets');
+        if (!runBtn || runBtn.dataset.bound === '1') return;
+
+        const presetQueries = {
+            user: `{
+  user {
+    id
+    login
+    firstName
+    lastName
+    email
+    campus
+  }
+}`,
+            nested: `{
+  user {
+    login
+    events(order_by: { level: desc }, limit: 3) {
+      level
+      event {
+        id
+        path
+        object { id name type }
+      }
+    }
+  }
+}`,
+            args: `{
+  transaction(
+    where: { type: { _eq: "xp" } }
+    order_by: { createdAt: desc }
+    limit: 5
+  ) {
+    id
+    amount
+    createdAt
+    path
+  }
+}`
+        };
+
+        if (presets) {
+            presets.addEventListener('click', (e) => {
+                const btn = e.target.closest('.graphiql-preset');
+                if (!btn) return;
+                const q = presetQueries[btn.dataset.preset];
+                if (q) input.value = q;
+            });
+        }
+
+        runBtn.addEventListener('click', async () => {
+            const query = input.value.trim();
+            if (!query) {
+                status.textContent = 'Empty query';
+                status.className = 'graphiql-status is-error';
+                return;
+            }
+            runBtn.disabled = true;
+            status.textContent = 'Running…';
+            status.className = 'graphiql-status';
+            const t0 = performance.now();
+            try {
+                const result = await window.graphqlClient.query(query);
+                const ms = Math.round(performance.now() - t0);
+                output.textContent = JSON.stringify(result, null, 2);
+                status.textContent = `OK · ${ms} ms`;
+                status.className = 'graphiql-status is-ok';
+            } catch (err) {
+                output.textContent = err.message;
+                status.textContent = 'Error';
+                status.className = 'graphiql-status is-error';
+            } finally {
+                runBtn.disabled = false;
+            }
+        });
+
+        runBtn.dataset.bound = '1';
     }
 
     setupProgramTabs() {

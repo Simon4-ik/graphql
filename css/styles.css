@@ -249,6 +249,127 @@ body {
     font-size: 0.85rem;
 }
 
+/* Section groups & titles */
+.section-group {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 4px 4px 0;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+.section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(40, 210, 187, 0.35), transparent);
+}
+
+/* GraphiQL playground */
+.graphiql-card { display: flex; flex-direction: column; gap: 12px; }
+
+.graphiql-hint {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+}
+.graphiql-hint code {
+    color: var(--accent);
+    background: var(--surface);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.graphiql-presets {
+    display: flex; flex-wrap: wrap; gap: 8px;
+}
+.graphiql-preset {
+    background: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: color 0.18s ease, border-color 0.18s ease;
+}
+.graphiql-preset:hover {
+    color: var(--accent);
+    border-color: rgba(40, 210, 187, 0.45);
+}
+
+.graphiql-input {
+    width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Cascadia Code', 'Consolas', 'Menlo', monospace;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    resize: vertical;
+    min-height: 140px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.graphiql-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(40, 210, 187, 0.15);
+}
+
+.graphiql-actions {
+    display: flex; align-items: center; gap: 14px;
+}
+
+.graphiql-run {
+    background: var(--accent);
+    color: #06231f;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.graphiql-run:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(40, 210, 187, 0.25); }
+.graphiql-run:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.graphiql-status {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+}
+.graphiql-status.is-ok    { color: var(--good); }
+.graphiql-status.is-error { color: var(--danger); }
+
+.graphiql-output {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Cascadia Code', 'Consolas', 'Menlo', monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    max-height: 360px;
+    overflow: auto;
+    white-space: pre;
+}
+
 /* Program selector */
 .program-selector {
     padding: 18px 22px;
