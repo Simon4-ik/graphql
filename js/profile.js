@@ -9,25 +9,30 @@ class ProfileManager {
     }
 
     filterByProgram(items, program) {
-        // Substring matching so we tolerate any leading prefix (`/astanahub/`,
-        // `/0/`, plain `/module/`, etc.) and both spellings of the Go piscine
-        // (`piscinego` and `piscine-go`).
-        const has = (path, ...needles) => needles.some(n => path.includes(n));
-        const isAnyPiscine = (path) =>
-            /\/piscine-?(js|go|ai|rust)\b/i.test(path);
+        const isCoreEvent = (t) => t.event && t.event.path === '/astanahub/module';
+        const language = (t) => {
+            const lang = t.object && t.object.attrs && t.object.attrs.language;
+            return typeof lang === 'string' ? lang.toLowerCase() : '';
+        };
+        const matchesLang = (t, ...langs) => langs.includes(language(t));
 
         switch (program) {
-            case 'piscine-js':
-                return items.filter(t => t.path && has(t.path, '/piscine-js/', '/piscinejs/'));
-            case 'piscine-go':
-                return items.filter(t => t.path && has(t.path, '/piscine-go/', '/piscinego/'));
-            case 'piscine-ai':
-                return items.filter(t => t.path && has(t.path, '/piscine-ai/', '/piscineai/'));
-            case 'piscine-rust':
-                return items.filter(t => t.path && has(t.path, '/piscine-rust/', '/piscinerust/'));
             case 'core-education':
+                return items.filter(isCoreEvent);
+            case 'piscine-go':
+                return items.filter(t => isCoreEvent(t) && matchesLang(t, 'go'));
+            case 'piscine-js':
                 return items.filter(t =>
-                    t.path && has(t.path, '/module/') && !isAnyPiscine(t.path)
+                    isCoreEvent(t) && matchesLang(t, 'javascript', 'js')
+                );
+            case 'piscine-ai':
+                return items.filter(t =>
+                    t.event && t.event.path === '/astanahub/module/piscine-ai'
+                );
+            case 'piscine-rust':
+                return items.filter(t =>
+                    (t.event && t.event.path === '/astanahub/module/piscine-rust') ||
+                    (isCoreEvent(t) && matchesLang(t, 'rust'))
                 );
             default:
                 return items;
@@ -35,15 +40,7 @@ class ProfileManager {
     }
 
     debugProgramPaths() {
-        const samples = new Set();
-        for (const t of this.xpTransactions) {
-            if (!t.path) continue;
-            const head = t.path.split('/').slice(0, 4).join('/');
-            samples.add(head);
-            if (samples.size >= 20) break;
-        }
-        console.log('🧭 Sample path roots (first 20):', [...samples]);
-        const programs = ['all', 'core-education', 'piscine-js', 'piscine-go', 'piscine-ai', 'piscine-rust'];
+        const programs = ['all', 'core-education', 'piscine-go', 'piscine-js', 'piscine-ai', 'piscine-rust'];
         const counts = Object.fromEntries(
             programs.map(p => [p, this.filterByProgram(this.xpTransactions, p).length])
         );
@@ -103,14 +100,19 @@ class ProfileManager {
                         }
                     }
                     transaction(
-                        where: { type: { _eq: "xp" }, eventId: { _is_null: false } }
+                        where: {
+                            type: { _eq: "xp" },
+                            eventId: { _is_null: false }
+                        }
                         order_by: { createdAt: asc }
                     ) {
                         id
                         amount
                         createdAt
                         path
-                        object { id name type }
+                        eventId
+                        event { id path }
+                        object { id name type attrs }
                     }
                     progress(
                         where: { object: { type: { _eq: "project" } } }
@@ -121,7 +123,9 @@ class ProfileManager {
                         isDone
                         createdAt
                         path
-                        object { id name type }
+                        eventId
+                        event { id path }
+                        object { id name type attrs }
                     }
                 }
             `);
